@@ -3,6 +3,17 @@ import { createContext, useContext } from "react";
 import { useSupabaseEvaluations } from "@/hooks/useSupabaseEvaluations";
 import { useToast } from "@/hooks/use-toast";
 import { MediaEvaluation, EthicalRating } from "@/types";
+import { ethicalCriteriaOptions } from "@/data/mockData"; // ← ajoute cette ligne
+
+// ➕ Fonction pour enrichir les critères avec leur label et description
+const enrichCriteria = (rawCriteria: { id: string; checked: boolean }[]) => {
+  return rawCriteria.map((c) => {
+    const full = ethicalCriteriaOptions.find((e) => e.id === c.id);
+    return full
+      ? { ...full, checked: c.checked }
+      : { id: c.id, label: c.id, description: "", checked: c.checked };
+  });
+};
 
 interface EvaluationsContextProps {
   evaluations: MediaEvaluation[];
@@ -51,7 +62,7 @@ export const EvaluationsProvider: React.FC<{ children: React.ReactNode }> = ({
     refreshEvaluations();
   }, []);
 
-  // Refresh evaluations from Supabase
+  // ✅ Refresh evaluations from Supabase, enrich criteria
   const refreshEvaluations = async () => {
     try {
       console.log("Refreshing evaluations from Supabase");
@@ -59,8 +70,12 @@ export const EvaluationsProvider: React.FC<{ children: React.ReactNode }> = ({
       const supabaseEvaluations = await fetchEvaluations();
       console.log("Received evaluations:", supabaseEvaluations);
 
-      // Always use Supabase evaluations, fall back to empty array
-      const evaluationsToSet = supabaseEvaluations || [];
+      const evaluationsToSet = (supabaseEvaluations || []).map((ev) => ({
+        ...ev,
+        criteria: enrichCriteria(ev.criteria),
+      }));
+
+      console.log("Enriched evaluations:", evaluationsToSet);
       setEvaluations(evaluationsToSet);
       setIsLoadingData(false);
       return evaluationsToSet;
