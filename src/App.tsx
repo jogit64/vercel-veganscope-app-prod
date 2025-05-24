@@ -23,6 +23,8 @@ import MediaDetailPage from "./pages/MediaDetailPage";
 import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 
+import { InstallButton } from "@/components/InstallButton"; // ← essentiel pour éviter le crash
+
 const queryClient = new QueryClient();
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
