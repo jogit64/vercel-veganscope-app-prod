@@ -42,14 +42,14 @@ const BottomNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 flex justify-around items-center z-10">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 px-2 py-2 flex justify-around items-center z-10">
       {navItems.map((item) => (
         <Link
           key={item.path}
           to={item.path}
           className={cn(
             "bottom-nav-item p-2",
-            isActive(item.path) ? "active" : "text-gray-500"
+            isActive(item.path) ? "active" : "text-gray-500 dark:text-gray-400"
           )}
         >
           <item.icon className="h-5 w-5 mb-1" />

@@ -26,7 +26,7 @@ const EvaluationsPage: React.FC = () => {
   } = useEvaluations();
 
   /* ────────────────────────────────────────────────────────────────── */
-  /* ÉTATS LOCAUX                                                      */
+  /* ÉTATS LOCAUX +                                                */
   /* ────────────────────────────────────────────────────────────────── */
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [evaluatedMedia, setEvaluatedMedia] = useState<Media[]>([]);
@@ -46,6 +46,8 @@ const EvaluationsPage: React.FC = () => {
     () => filteredMedia.slice(0, page * ITEMS_PER_PAGE),
     [filteredMedia, page]
   );
+
+  const hasMore = displayedMedia.length < filteredMedia.length;
 
   // Pour pouvoir les inspecter depuis la console
   useEffect(() => {
@@ -214,15 +216,12 @@ const EvaluationsPage: React.FC = () => {
   const handleObserver = useCallback(
     (entries: IntersectionObserverEntry[]) => {
       const target = entries[0];
-      if (
-        target.isIntersecting &&
-        filteredMedia.length > displayedMedia.length
-      ) {
+      if (target.isIntersecting && hasMore) {
         console.log("⏬ Intersection → page +1");
         setPage((prev) => prev + 1);
       }
     },
-    [filteredMedia, displayedMedia]
+    [hasMore]
   );
 
   useEffect(() => {
@@ -242,19 +241,27 @@ const EvaluationsPage: React.FC = () => {
   /* ────────────────────────────────────────────────────────────────── */
   return (
     <div className="pb-20">
-      <PageHeader title="Avis">
-        <Button
-          onClick={handleRefresh}
-          variant="outline"
-          size="sm"
-          disabled={isRefreshing || isEvaluationsLoading}
-        >
-          <RefreshCcw className="h-4 w-4 mr-2" />
-          {isRefreshing || isEvaluationsLoading
-            ? "Chargement..."
-            : "Actualiser"}
-        </Button>
-      </PageHeader>
+      <div className="mb-6 pt-4">
+        <div className="flex items-start gap-3 px-4 py-4 bg-card text-card-foreground border border-border rounded-xl shadow-md">
+          <PageHeader
+            title="Avis"
+            icon="comment"
+            description="Consultez les évaluations"
+          >
+            <Button
+              onClick={handleRefresh}
+              variant="outline"
+              size="sm"
+              disabled={isRefreshing || isEvaluationsLoading}
+            >
+              <RefreshCcw className="h-4 w-4 mr-2" />
+              {isRefreshing || isEvaluationsLoading
+                ? "Chargement..."
+                : "Actualiser"}
+            </Button>
+          </PageHeader>
+        </div>
+      </div>
 
       <FilterPanel
         filters={filters}
@@ -270,7 +277,7 @@ const EvaluationsPage: React.FC = () => {
       {/* États vides / feedback utilisateur */}
       {evaluations.length === 0 && (
         <div className="py-8 text-center">
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Aucune évaluation disponible pour le moment
           </p>
         </div>
@@ -278,7 +285,7 @@ const EvaluationsPage: React.FC = () => {
 
       {evaluations.length > 0 && displayedMedia.length === 0 && (
         <div className="py-8 text-center">
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             Aucune évaluation ne correspond aux critères de recherche
           </p>
         </div>
@@ -296,9 +303,13 @@ const EvaluationsPage: React.FC = () => {
       <div ref={loaderRef} className="h-1 w-full" />
 
       {/* Spinner quand il reste des éléments à charger */}
-      {filteredMedia.length > displayedMedia.length && (
+      {hasMore ? (
         <div className="py-8 flex justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : (
+        <div className="py-6 text-center text-sm text-muted-foreground">
+          Fin des résultats
         </div>
       )}
     </div>

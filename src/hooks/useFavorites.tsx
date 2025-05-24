@@ -1,62 +1,89 @@
+import { useState, useEffect, createContext, useContext } from "react";
 
-import { useState, useEffect } from 'react';
-import { createContext, useContext } from 'react';
-
-interface FavoritesContextProps {
-  favorites: number[];
-  addFavorite: (mediaId: number) => void;
-  removeFavorite: (mediaId: number) => void;
-  isFavorite: (mediaId: number) => boolean;
+// Nouveau type favori : inclut l'ID et le type du média
+interface FavoriteItem {
+  id: number;
+  type: "movie" | "tv";
 }
 
-const FavoritesContext = createContext<FavoritesContextProps | undefined>(undefined);
+interface FavoritesContextProps {
+  favorites: FavoriteItem[];
+  addFavorite: (item: FavoriteItem) => void;
+  removeFavorite: (item: FavoriteItem) => void;
+  isFavorite: (item: FavoriteItem) => boolean;
+}
+
+const FavoritesContext = createContext<FavoritesContextProps | undefined>(
+  undefined
+);
 
 export const useFavoritesContext = () => {
   const context = useContext(FavoritesContext);
   if (context === undefined) {
-    throw new Error('useFavoritesContext must be used within an FavoritesProvider');
+    throw new Error(
+      "useFavoritesContext must be used within a FavoritesProvider"
+    );
   }
   return context;
 };
 
-export const FavoritesProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [favorites, setFavorites] = useState<number[]>([]);
+export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
 
-  // Load favorites from localStorage
+  // Chargement depuis localStorage au démarrage
   useEffect(() => {
-    const storedFavorites = localStorage.getItem('veganscope_favorites');
+    const storedFavorites = localStorage.getItem("veganscope_favorites");
     if (storedFavorites) {
       try {
         setFavorites(JSON.parse(storedFavorites));
       } catch (e) {
-        console.error('Error loading favorites:', e);
+        console.error("Error loading favorites:", e);
       }
     }
   }, []);
 
-  // Save favorites to localStorage
+  // Sauvegarde à chaque changement
   useEffect(() => {
-    localStorage.setItem('veganscope_favorites', JSON.stringify(favorites));
+    localStorage.setItem("veganscope_favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const addFavorite = (mediaId: number) => {
-    setFavorites(prev => [...prev, mediaId]);
+  const addFavorite = (item: FavoriteItem) => {
+    setFavorites((prev) => {
+      const exists = prev.some(
+        (fav) => fav.id === item.id && fav.type === item.type
+      );
+      return exists ? prev : [...prev, item];
+    });
   };
 
-  const removeFavorite = (mediaId: number) => {
-    setFavorites(prev => prev.filter(id => id !== mediaId));
+  const removeFavorite = (item: FavoriteItem) => {
+    setFavorites((prev) =>
+      prev.filter((fav) => !(fav.id === item.id && fav.type === item.type))
+    );
   };
 
-  const isFavorite = (mediaId: number) => {
-    return favorites.includes(mediaId);
+  const isFavorite = (item: FavoriteItem | number): boolean => {
+    console.log("🔍 Checking favorite for:", item);
+    if (typeof item === "number") {
+      console.warn("⚠️ isFavorite appelé avec un ID seul sans type !");
+      // Optionnel : retourne false ou recherche partielle
+      return favorites.some((fav) => fav.id === item);
+    }
+
+    return favorites.some(
+      (fav) => fav.id === item.id && fav.type === item.type
+    );
   };
 
-  const value = { 
-    favorites, 
-    addFavorite, 
-    removeFavorite, 
-    isFavorite 
+  const value = {
+    favorites,
+    addFavorite,
+    removeFavorite,
+    isFavorite,
   };
+  console.log("💾 favorites in context:", favorites);
 
   return (
     <FavoritesContext.Provider value={value}>
@@ -65,9 +92,8 @@ export const FavoritesProvider: React.FC<{children: React.ReactNode}> = ({ child
   );
 };
 
-// Hook to expose favorites context in components that don't need to provide it
 export const useFavorites = () => {
   return {
-    ...useFavoritesContext()
+    ...useFavoritesContext(),
   };
 };

@@ -12,6 +12,9 @@ import {
 } from "@/lib/api";
 import { Media } from "@/types";
 import { Loader2 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useTheme } from "next-themes";
+import LogoImage from "@/components/LogoImage";
 
 const HomePage: React.FC = () => {
   const { genres } = useAppContext();
@@ -21,6 +24,8 @@ const HomePage: React.FC = () => {
   const [recentTvShows, setRecentTvShows] = useState<Media[]>([]);
   const [recentEvaluatedMedia, setRecentEvaluatedMedia] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const { resolvedTheme, theme } = useTheme();
+  const isDark = (resolvedTheme || theme) === "dark";
 
   // Fetch trending movies and TV shows
   useEffect(() => {
@@ -147,32 +152,51 @@ const HomePage: React.FC = () => {
   if (isLoading && recentMovies.length === 0 && recentTvShows.length === 0) {
     return (
       <div className="py-20 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="pb-20">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold mb-4">Veganscope</h1>
-        <SearchBar />
+    <div className="pb-20 relative">
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+      <div className="mb-6 pt-4">
+        <div className="flex items-start gap-3 px-4 py-4 bg-card text-card-foreground border border-border rounded-xl shadow-md">
+          <LogoImage />
+          <div>
+            <h1 className="text-2xl font-bold leading-tight text-foreground">
+              Veganscope
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Films et séries vus sous l’angle animal
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="mb-4">
+        <SearchBar placeholder="Rechercher un film ou une série..." />
       </div>
 
       {recentEvaluatedMedia.length > 0 && (
-        <section className="mb-8">
-          <SectionHeader title="Derniers avis" linkTo="/evaluations" />
+        <section className="pt-6 mt-6 border-t border-border mb-8">
+          <SectionHeader
+            title="Derniers avis"
+            linkTo="/evaluations"
+            icon="comment"
+          />
           <MediaGrid items={recentEvaluatedMedia} />
         </section>
       )}
 
-      <section className="mb-8">
-        <SectionHeader title="Films populaires" linkTo="/movies" />
+      <section className="pt-6 mt-6 border-t border-border mb-8">
+        <SectionHeader title="Films populaires" linkTo="/movies" icon="film" />
         <MediaGrid items={recentMovies} />
       </section>
 
-      <section className="mb-8">
-        <SectionHeader title="Séries populaires" linkTo="/tv" />
+      <section className="pt-6 mt-6 border-t border-border mb-8">
+        <SectionHeader title="Séries populaires" linkTo="/tv" icon="tv" />
         <MediaGrid items={recentTvShows} />
       </section>
     </div>

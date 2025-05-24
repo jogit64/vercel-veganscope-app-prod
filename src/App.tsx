@@ -1,4 +1,4 @@
-
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,7 +8,7 @@ import { AppProvider } from "@/contexts/AppContext";
 import { FavoritesProvider } from "@/hooks/useFavorites";
 import { EvaluationsProvider } from "@/hooks/useEvaluations";
 import { MediaProvider } from "@/hooks/useMedia";
-import NotFound from "./pages/NotFound";
+import { useTheme } from "@/hooks/useTheme"; // ← ajout du hook personnalisé
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -18,16 +18,24 @@ import EvaluationsPage from "./pages/EvaluationsPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import SearchPage from "./pages/SearchPage";
 import MediaDetailPage from "./pages/MediaDetailPage";
+import NotFound from "./pages/NotFound";
 import BottomNavigation from "./components/BottomNavigation";
 
 const queryClient = new QueryClient();
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { isDark } = useTheme();
+
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) {
+      meta.setAttribute("content", isDark ? "#0f172a" : "#ffffff");
+    }
+  }, [isDark]);
+
   return (
-    <div className="min-h-screen">
-      <main className="container px-4 max-w-md mx-auto">
-        {children}
-      </main>
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <main className="container px-4 max-w-md mx-auto">{children}</main>
       <BottomNavigation />
     </div>
   );

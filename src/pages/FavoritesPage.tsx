@@ -26,6 +26,18 @@ const FavoritesPage: React.FC = () => {
     ethicalRating: "all",
   });
 
+  const header = (
+    <div className="mb-6 pt-4">
+      <div className="flex items-start gap-3 px-4 py-4 bg-card text-card-foreground border border-border rounded-xl shadow-md">
+        <PageHeader
+          title="Favoris"
+          icon="star"
+          description="Tous vos contenus sélectionnés"
+        />
+      </div>
+    </div>
+  );
+
   useEffect(() => {
     const fetchFavorites = async () => {
       if (favorites.length === 0) {
@@ -37,9 +49,9 @@ const FavoritesPage: React.FC = () => {
       setError(null);
 
       try {
-        const mediaPromises = favorites.map(async (id) => {
-          let media = await fetchMediaDetails(id, "movie");
-          if (!media) media = await fetchMediaDetails(id, "tv");
+        const mediaPromises = favorites.map(async (fav) => {
+          let media = await fetchMediaDetails(fav.id, fav.type);
+
           if (!media) return null;
 
           const mediaType = media.title ? "movie" : "tv";
@@ -118,7 +130,7 @@ const FavoritesPage: React.FC = () => {
   if (loading) {
     return (
       <div className="pb-20">
-        <PageHeader title="Favoris" />
+        {header}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {[1, 2, 3, 4].map((i) => (
             <div key={i} className="flex flex-col">
@@ -135,9 +147,9 @@ const FavoritesPage: React.FC = () => {
   if (error) {
     return (
       <div className="pb-20">
-        <PageHeader title="Favoris" />
+        {header}
         <div className="py-8 text-center">
-          <p className="text-red-500 mb-4">{error}</p>
+          <p className="text-destructive mb-4">{error}</p>
           <Button asChild>
             <Link to="/">Retour à l'accueil</Link>
           </Button>
@@ -148,11 +160,10 @@ const FavoritesPage: React.FC = () => {
 
   return (
     <div className="pb-20">
-      <PageHeader title="Favoris" />
-
+      {header}
       {favoriteMedia.length === 0 ? (
         <div className="py-8 text-center">
-          <p className="text-gray-500 mb-4">
+          <p className="text-muted-foreground mb-4">
             Vous n'avez pas encore ajouté de favoris
           </p>
           <Button asChild>
@@ -166,7 +177,6 @@ const FavoritesPage: React.FC = () => {
             onFilterChange={handleFilterChange}
             genres={allGenres}
           />
-
           <MediaGrid
             items={filteredMedia}
             emptyMessage={

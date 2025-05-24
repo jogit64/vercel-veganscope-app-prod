@@ -23,7 +23,6 @@ const MediaDetailPage: React.FC = () => {
   const { toast } = useToast();
   const { genres } = useAppContext();
 
-  // Using the separate context hooks
   const { getMediaById } = useMedia();
   const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const {
@@ -43,24 +42,17 @@ const MediaDetailPage: React.FC = () => {
     getRatingForMedia(mediaId, mediaType)
   );
   const [isLoading, setIsLoading] = useState(!media);
-  const favorite = isFavorite(mediaId);
+  const favorite = isFavorite({ id: mediaId, type: mediaType });
 
   const [activeTab, setActiveTab] = useState("overview");
 
-  // Form state for new evaluation
-  const [newEvaluation, setNewEvaluation] = useState<{
-    username: string;
-    rating: string;
-    comment: string;
-    criteria: typeof ethicalCriteriaOptions;
-  }>({
+  const [newEvaluation, setNewEvaluation] = useState({
     username: "",
     rating: "",
     comment: "",
     criteria: [...ethicalCriteriaOptions],
   });
 
-  // Fetch media details if not in context
   useEffect(() => {
     const loadMediaDetails = async () => {
       if (!media && mediaId > 0) {
@@ -68,7 +60,6 @@ const MediaDetailPage: React.FC = () => {
         try {
           const details = await fetchMediaDetails(mediaId, mediaType);
           if (details) {
-            // Convert the API response to our Media type
             const formattedMedia = {
               id: details.id,
               title: mediaType === "movie" ? details.title : details.name,
@@ -84,7 +75,7 @@ const MediaDetailPage: React.FC = () => {
               genreIds: details.genres
                 ? details.genres.map((g: any) => g.id)
                 : [],
-              mediaType: mediaType as "movie" | "tv", // Cast to the correct type
+              mediaType: mediaType as "movie" | "tv",
             };
             setMedia(formattedMedia);
           }
@@ -104,7 +95,6 @@ const MediaDetailPage: React.FC = () => {
     loadMediaDetails();
   }, [mediaId, mediaType, media, toast]);
 
-  // Charger les évaluations à l'affichage du composant
   useEffect(() => {
     if (mediaId && mediaType) {
       const mediaEvaluations = getEvaluationsForMedia(mediaId, mediaType);
@@ -131,19 +121,18 @@ const MediaDetailPage: React.FC = () => {
     );
   }
 
-  const handleBack = () => {
-    navigate(-1);
-  };
+  const handleBack = () => navigate(-1);
 
   const handleFavoriteToggle = () => {
+    const favoriteItem = { id: mediaId, type: mediaType };
     if (favorite) {
-      removeFavorite(mediaId);
+      removeFavorite(favoriteItem);
       toast({
         title: "Retiré des favoris",
         description: `${media.title} a été retiré de vos favoris`,
       });
     } else {
-      addFavorite(mediaId);
+      addFavorite(favoriteItem);
       toast({
         title: "Ajouté aux favoris",
         description: `${media.title} a été ajouté à vos favoris`,
@@ -159,7 +148,6 @@ const MediaDetailPage: React.FC = () => {
         url: window.location.href,
       });
     } else {
-      // Fallback - copier l'URL dans le presse-papier
       navigator.clipboard.writeText(window.location.href);
       toast({
         title: "Lien copié!",
@@ -170,7 +158,6 @@ const MediaDetailPage: React.FC = () => {
 
   const handleRefreshEvaluations = async () => {
     await refreshEvaluations();
-    // Mettre à jour les évaluations locales
     const freshEvaluations = getEvaluationsForMedia(mediaId, mediaType);
     setEvaluations(freshEvaluations);
     toast({
@@ -180,10 +167,7 @@ const MediaDetailPage: React.FC = () => {
   };
 
   const handleEvaluationChange = (field: string, value: any) => {
-    setNewEvaluation((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setNewEvaluation((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleCriteriaChange = (id: string, checked: boolean) => {
@@ -195,7 +179,6 @@ const MediaDetailPage: React.FC = () => {
 
   const handleNewEvaluationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!newEvaluation.username || !newEvaluation.rating) {
       toast({
         title: "Erreur",
@@ -204,8 +187,6 @@ const MediaDetailPage: React.FC = () => {
       });
       return;
     }
-
-    console.log("Submitting evaluation:", newEvaluation);
 
     const evaluation: MediaEvaluation = {
       id: `new-${Date.now()}`,
@@ -218,24 +199,16 @@ const MediaDetailPage: React.FC = () => {
       createdAt: new Date().toISOString(),
     };
 
-    console.log("Created evaluation object:", evaluation);
-
     try {
       await addEvaluation(evaluation);
-
-      // Reset form
       setNewEvaluation({
         username: "",
         rating: "",
         comment: "",
         criteria: [...ethicalCriteriaOptions],
       });
-
-      // Update local evaluations
       const updatedEvaluations = getEvaluationsForMedia(mediaId, mediaType);
       setEvaluations(updatedEvaluations);
-
-      // Switch to evaluations tab
       setActiveTab("evaluations");
     } catch (error) {
       console.error("Error adding evaluation:", error);

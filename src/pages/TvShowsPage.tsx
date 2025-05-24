@@ -9,7 +9,6 @@ import { fetchTrendingTVSeries } from "@/lib/api";
 import { Media, MediaFilters } from "@/types";
 import { Loader2 } from "lucide-react";
 
-/* --- utilitaire lisibilité titre ------------------------------------ */
 const isTitleReadable = (title: string): boolean => {
   const letters = title.match(/\p{Letter}/gu);
   if (!letters) return false;
@@ -17,7 +16,6 @@ const isTitleReadable = (title: string): boolean => {
   return latinLetters.length / letters.length >= 0.6;
 };
 
-/* --- conversion TMDB -> Media --------------------------------------- */
 const tmdbToMedia = (show: any): Media => ({
   id: show.id,
   title: show.name || show.title || "",
@@ -42,9 +40,8 @@ const TvShowsPage: React.FC = () => {
   const [hasMore, setHasMore] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
 
-  const isFetchingRef = useRef(false); // ⬅️ évite la boucle
+  const isFetchingRef = useRef(false);
 
-  /* ------------------ filtres --------------------------------------- */
   const [filters, setFilters] = useState<MediaFilters>({
     mediaType: "tv",
     genreId: null,
@@ -52,7 +49,6 @@ const TvShowsPage: React.FC = () => {
     ethicalRating: "all",
   });
 
-  /* ------------------ eval végane ----------------------------------- */
   const applyEvaluation = useCallback(
     (media: Media): Media => {
       const e = evaluations.find(
@@ -62,9 +58,6 @@ const TvShowsPage: React.FC = () => {
     },
     [evaluations]
   );
-
-  /* ------------------ fetch ----------------------------------------- */
-  const PAGE_SIZE = 20;
 
   const fetchShows = useCallback(
     async (pageToLoad: number, reset = false) => {
@@ -84,7 +77,7 @@ const TvShowsPage: React.FC = () => {
 
         const batch = response.results
           .map(tmdbToMedia)
-          .filter((m) => isTitleReadable(m.title)) // <== filtre caractères latins ici
+          .filter((m) => isTitleReadable(m.title))
           .map(applyEvaluation)
           .filter(
             (m) =>
@@ -92,19 +85,22 @@ const TvShowsPage: React.FC = () => {
               m.evaluationRating === filters.ethicalRating
           );
 
-        /* éviter les doublons si TMDb renvoie accidentellement la même série */
         setItems((prev) => {
           const seen = new Set(prev.map((i) => i.id));
-          const merged = reset
-            ? batch
-            : [...prev, ...batch.filter((i) => !seen.has(i.id))];
+          const filtered = batch.filter((i) => !seen.has(i.id));
+          const merged = reset ? batch : [...prev, ...filtered];
+
+          if (!reset && filtered.length === 0) {
+            setHasMore(false);
+          }
+
           return merged;
         });
 
         setPage(pageToLoad);
-        setHasMore(response.hasMore); // ← on fait confiance à l’API
       } catch (err) {
         console.error(err);
+        setHasMore(false);
       } finally {
         isFetchingRef.current = false;
         setIsFetching(false);
@@ -113,16 +109,13 @@ const TvShowsPage: React.FC = () => {
     [filters, applyEvaluation]
   );
 
-  /* --- reset & premier chargement quand filtres changent ------------ */
   useEffect(() => {
     setItems([]);
     setHasMore(true);
     setPage(1);
     fetchShows(1, true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]); // ✅ fetchShows plus dans deps
+  }, [filters]);
 
-  /* ------------------ infinite scroll ------------------------------- */
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -142,54 +135,51 @@ const TvShowsPage: React.FC = () => {
     return () => el && observer.unobserve(el);
   }, [fetchShows, hasMore, page]);
 
-  /* ------------------ rendu ----------------------------------------- */
   return (
     <div className="pb-20">
-      <PageHeader title="Séries" />
-
-      <div className="mb-4">
-        <SearchBar placeholder="Rechercher une série..." />
+      <div className="mb-6 pt-4">
+        <div className="flex items-start gap-3 px-4 py-4 bg-card text-card-foreground border border-border rounded-xl shadow-md">
+          <PageHeader
+            title="Séries"
+            icon="tv"
+            description="Trouvez/évaluez des séries"
+          />
+        </div>
       </div>
 
       <FilterPanel
         filters={filters}
         onFilterChange={(f) => setFilters((p) => ({ ...p, ...f }))}
         genres={tvGenres}
-        hideMediaType={true} // 👈 ajoute cette ligne ici !
+        hideMediaType={true}
         className="mb-4"
       />
 
-      {/* spinner initial */}
       {items.length === 0 && isFetching && (
         <div className="py-20 flex justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       )}
 
-      {/* résultats */}
       {items.length > 0 && <MediaGrid items={items} />}
 
-      {/* aucun résultat */}
       {items.length === 0 && !isFetching && (
         <p className="py-8 text-center text-gray-500">
           Aucune série ne correspond aux critères de recherche
         </p>
       )}
 
-      {/* sentinel pour scroll infini */}
       <div ref={sentinelRef} className="h-1 w-full" />
 
-      {/* spinner de scroll */}
       {isFetching && items.length > 0 && (
         <div className="py-8 flex justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
         </div>
       )}
 
-      {/* fin de liste */}
       {!hasMore && !isFetching && items.length > 0 && (
-        <p className="text-center py-8 text-gray-500 text-sm">
-          Toutes les séries ont été chargées
+        <p className="text-center py-8 text-muted-foreground text-sm">
+          📺 Toutes les séries correspondantes ont été affichées.
         </p>
       )}
     </div>
