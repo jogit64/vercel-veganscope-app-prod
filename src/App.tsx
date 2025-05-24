@@ -1,3 +1,5 @@
+// 👉 Code spécifique à la version prod pour l’installation PWA
+
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -36,6 +38,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <main className="container px-4 max-w-md mx-auto">{children}</main>
+
+      {process.env.NODE_ENV === "production" && <InstallButton />}
       <BottomNavigation />
     </div>
   );
