@@ -145,7 +145,8 @@ const MediaDetailPage: React.FC = () => {
       navigator.share({
         title: `Veganscope : ${media.title}`,
         text: `Découvrez l'évaluation éthique de ${media.title} sur Veganscope!`,
-        url: window.location.href,
+        //url: window.location.href,
+        url: `${window.location.origin}/${type}/${id}`,
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
