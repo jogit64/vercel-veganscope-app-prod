@@ -29,9 +29,10 @@ export const InstallButton = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.3 }}
-        className="fixed bottom-32 inset-x-4 mx-auto max-w-xs p-5 rounded-2xl shadow-2xl 
-           border bg-white text-gray-900 
-           dark:bg-zinc-900 dark:text-white dark:border-zinc-700"
+        className="fixed bottom-32 inset-x-4 mx-auto max-w-xs p-5 rounded-2xl 
+           shadow-2xl backdrop-blur-md border bg-white/90 
+           text-gray-900 dark:bg-zinc-900/90 dark:text-white 
+           dark:border-zinc-700 z-[9999]"
       >
         <div className="flex justify-between items-center mb-3">
           <p className="text-sm">
