@@ -22,6 +22,11 @@ export const InstallButton = () => {
 
   if (!showPrompt) return null;
 
+  const handleDismiss = () => {
+    setDismissed(true);
+    setShowPrompt(false); // <-- nécessaire pour masquer immédiatement
+  };
+
   return (
     <AnimatePresence>
       <motion.div
@@ -41,7 +46,7 @@ export const InstallButton = () => {
             votre écran d'accueil ?
           </p>
           <button
-            onClick={() => setDismissed(true)}
+            onClick={handleDismiss}
             className="text-gray-500 hover:text-gray-800 dark:hover:text-white"
             aria-label="Fermer"
           >
@@ -50,7 +55,7 @@ export const InstallButton = () => {
         </div>
         <div className="flex justify-center gap-3">
           <Button onClick={promptInstall}>Oui, installer</Button>
-          <Button variant="outline" onClick={() => setDismissed(true)}>
+          <Button variant="outline" onClick={handleDismiss}>
             Plus tard
           </Button>
         </div>
