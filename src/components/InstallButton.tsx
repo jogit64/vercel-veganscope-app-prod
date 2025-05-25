@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
 
 export const InstallButton = () => {
   const { isVisible, promptInstall } = useInstallPrompt();
   const [showPrompt, setShowPrompt] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
-  // ✅ Hook appelé quoi qu’il arrive — conforme à React
   useEffect(() => {
     const isMobile =
       typeof window !== "undefined" &&
@@ -29,16 +29,25 @@ export const InstallButton = () => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
         transition={{ duration: 0.3 }}
-        className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 
-                   w-11/12 max-w-sm p-4 rounded-xl shadow-xl 
+        className="fixed bottom-32 left-1/2 -translate-x-1/2 z-50 
+                   w-[95%] max-w-md p-5 rounded-2xl shadow-2xl 
                    border bg-white text-gray-900 
                    dark:bg-zinc-900 dark:text-white dark:border-zinc-700"
       >
-        <p className="text-sm text-center mb-3">
-          Installer{" "}
-          <span className="font-semibold text-primary">VeganScope</span> sur
-          votre écran d'accueil ?
-        </p>
+        <div className="flex justify-between items-center mb-3">
+          <p className="text-sm">
+            Installer{" "}
+            <span className="font-semibold text-primary">VeganScope</span> sur
+            votre écran d'accueil ?
+          </p>
+          <button
+            onClick={() => setDismissed(true)}
+            className="text-gray-500 hover:text-gray-800 dark:hover:text-white"
+            aria-label="Fermer"
+          >
+            <X size={18} />
+          </button>
+        </div>
         <div className="flex justify-center gap-3">
           <Button onClick={promptInstall}>Oui, installer</Button>
           <Button variant="outline" onClick={() => setDismissed(true)}>
