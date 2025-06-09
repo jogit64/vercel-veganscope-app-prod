@@ -1,73 +1,54 @@
-# Welcome to your Lovable project
+# 🌿 VeganScope | ⚛️ React + Supabase + TMDb API
 
-## Project info
+**VeganScope** est une Progressive Web App qui aide les spectateurs véganes ou sensibles aux questions animales à évaluer l’éthique des films et séries, en fonction de critères comme la présence d’animaux exploités, la violence ou l’image véhiculée.
 
-**URL**: https://lovable.dev/projects/1c51833c-a480-4ceb-9e69-072de539cab1
+---
 
-## How can I edit this code?
+## Fonctionnalités
 
-There are several ways of editing your application.
+- 🎬 **Recherche intelligente** (films, séries) via l’API TMDb
+- ✍️ **Évaluations éthiques** personnalisées, stockées dans Supabase
+- 🧠 **Filtres multi-critères** : exploitation animale, image positive, souffrance, etc.
+- 📱 **Expérience mobile-first**
+- 🌗 **Mode clair/sombre** + thème persistant
+- 💾 **Favoris**, **avis personnels** et **système de tri**
+- ⚙️ **Scroll infini**, **carrousel**, **filtrage dynamique**
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/1c51833c-a480-4ceb-9e69-072de539cab1) and start prompting.
+## Technologies utilisées
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend** : React, TypeScript, Tailwind CSS, Vite
+- **Backend / API** :
+  - Supabase (base PostgreSQL + Edge Functions sécurisées)
+  - TMDb API (données publiques des œuvres)
+- **Autres** : LocalStorage, PWA (Progressive Web App), JWT anonyme
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Installation (développement)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```bash
+# Cloner le repo
+git clone https://github.com/jogit64/vercel-veganscope-app-prod.git
+cd vercel-veganscope-app-prod
 
-Follow these steps:
+# Installer les dépendances
+npm install
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Créer un fichier .env à la racine avec :
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+VITE_TMDB_API_KEY=...
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Lancer l'app en développement
 npm run dev
+Déploiement
+L’application est conçue pour être déployée facilement sur des services comme Vercel.
+Les variables d’environnement sont injectées au moment du build (.env ou dashboard Vercel).
+
+Notes
+VeganScope est un projet personnel visant à explorer les usages éthiques de la tech.
+
+L’API TMDb est utilisée conformément à leurs conditions d’utilisation.
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/1c51833c-a480-4ceb-9e69-072de539cab1) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
